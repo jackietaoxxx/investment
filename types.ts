@@ -25,12 +25,18 @@ export interface TechnicalIndicators {
   };
 }
 
+export interface PriceLevel {
+  price: number;
+  type: 'SUPPORT' | 'RESISTANCE';
+  label: string; // e.g., "SMA 50", "Gap Fill", "Psychological"
+  strength: 'STRONG' | 'MEDIUM' | 'WEAK';
+}
+
 export interface AssetData {
   symbol: string;
   name: string;
   indicators: TechnicalIndicators;
-  supportLevels: number[];
-  resistanceLevels: number[];
+  levels: PriceLevel[];
 }
 
 export interface TrendAnalysis {
@@ -46,9 +52,26 @@ export interface TrendAnalysis {
   };
 }
 
+export interface LinkData {
+  title: string;
+  url: string;
+}
+
+export interface CryptoPrice {
+  price: string;
+  change: string;
+}
+
 export interface MarketContextData {
   summary: string;
+  cryptoContext: string; // Analysis of BTC/ETH correlation
+  cryptoPrices?: {
+    btc: CryptoPrice;
+    eth: CryptoPrice;
+  };
   drivers: string[];
   watchList: string;
+  calendar: string[]; // Upcoming events (FOMC, Earnings)
   sentimentTags: Array<{ tag: string; sentiment: 'BULLISH' | 'BEARISH' | 'NEUTRAL' }>;
+  links: LinkData[]; // Sources from search grounding
 }

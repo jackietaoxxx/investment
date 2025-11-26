@@ -1,5 +1,5 @@
-import { GoogleGenAI, Type } from "@google/genai";
-import { MarketContextData, AssetData, TrendAnalysis } from "../types";
+import { GoogleGenAI } from "@google/genai";
+import { MarketContextData, AssetData, TrendAnalysis, LinkData } from "../types";
 import { getStatusLabel } from "../utils/analysis";
 
 const getClient = () => {
@@ -19,67 +19,113 @@ export const fetchMarketContext = async (
 ): Promise<MarketContextData> => {
   const client = getClient();
   
-  // Fallback data if no API key
+  // Fallback data
   const fallbackData: MarketContextData = {
-    summary: "零售销售数据超预期，VIX 回落至 16 以下，市场表现出较强韧性。科技股轮动支撑了大盘。",
-    drivers: ["零售销售数据强劲", "VIX 回落", "科技板块轮动"],
-    watchList: "明日关注 PPI 数据 (8:30 ET) 及感恩节假期休市安排",
+    summary: "市场数据获取中，请稍候...",
+    cryptoContext: "",
+    cryptoPrices: {
+      btc: { price: "---", change: "---" },
+      eth: { price: "---", change: "---" }
+    },
+    drivers: ["数据加载中...", "数据加载中...", "数据加载中..."],
+    watchList: "等待 API 响应...",
+    calendar: ["即将更新...", "即将更新...", "即将更新..."],
     sentimentTags: [
-      { tag: "#QQQ金叉", sentiment: "BULLISH" },
-      { tag: "#缩量盘整", sentiment: "NEUTRAL" }
-    ]
+      { tag: "#等待更新", sentiment: "NEUTRAL" }
+    ],
+    links: []
   };
 
   if (!client) return fallbackData;
 
   const prompt = `
-    Analyze the following stock market data for QQQ and SPY to provide a daily market context summary for traders.
-    Output must be in Chinese (Simplified).
+    You are a professional financial analyst. Analyze the current market situation for QQQ and SPY.
     
-    Data:
-    QQQ: Close ${qqq.indicators.close}, Change ${qqq.indicators.changePercent}%, Trend: ${getStatusLabel(qqqTrend.status)}, Score: ${qqqTrend.score}/10.
-    SPY: Close ${spy.indicators.close}, Change ${spy.indicators.changePercent}%, Trend: ${getStatusLabel(spyTrend.status)}, Score: ${spyTrend.score}/10.
+    TASK 1: Use Google Search to find the EXACT REAL-TIME PRICE of Bitcoin (BTC) and Ethereum (ETH) right now in USD.
     
+    TASK 2: Identify the TOP 3 specific market drivers for TODAY. 
+    CRITICAL: Be extremely specific and detailed. 
+    - Do NOT say "Tech stocks rose". 
+    - DO say "Google surged 5% on news of Gemini 3 TPU integration" or "Meta and Apple partnership rumors lifted sentiment".
+    - DO say "Fed Chair Powell's hawkish comments on 3.5% CPI caused a selloff".
+    
+    Data provided:
+    QQQ: Close ${qqq.indicators.close}, Change ${qqq.indicators.changePercent}%, Trend: ${getStatusLabel(qqqTrend.status)}.
+    SPY: Close ${spy.indicators.close}, Change ${spy.indicators.changePercent}%, Trend: ${getStatusLabel(spyTrend.status)}.
     Current Date: ${new Date().toLocaleDateString()}.
     
-    Generate a JSON response with:
-    1. summary: A short summary (max 2 sentences) of the market background in Chinese.
-    2. drivers: A list of 3 key market drivers (e.g. macro events, sector moves) in Chinese.
-    3. watchList: What to watch tomorrow (1 short sentence) in Chinese.
-    4. sentimentTags: 2-3 trending sentiment hashtags (in Chinese or English common terms) with sentiment (BULLISH, BEARISH, NEUTRAL).
+    OUTPUT FORMAT:
+    Return a valid JSON string. Do not include markdown formatting (like \`\`\`json).
+    
+    JSON Structure:
+    {
+      "summary": "A concise market summary (max 2 sentences) in Chinese.",
+      "drivers": [
+        "Detailed driver 1 (e.g. Specific company news/partnerships) in Chinese.", 
+        "Detailed driver 2 (e.g. Specific Macro data/Fed quotes) in Chinese.", 
+        "Detailed driver 3 (e.g. Sector specific news) in Chinese."
+      ],
+      "cryptoPrices": {
+        "btc": { "price": "$96,250", "change": "+3.5%" },
+        "eth": { "price": "$3,450", "change": "-1.2%" }
+      },
+      "watchList": "What to watch tomorrow (Important Data, Speeches) in Chinese.",
+      "calendar": ["Date: Event 1", "Date: Event 2"],
+      "sentimentTags": [
+        { "tag": "#Tag1", "sentiment": "BULLISH" },
+        { "tag": "#Tag2", "sentiment": "BEARISH" }
+      ],
+      "cryptoContext": ""
+    }
   `;
 
   try {
+    // Note: When using googleSearch, we cannot strictly enforce responseMimeType: "application/json".
+    // We must rely on the prompt to generate JSON and parse the text manually.
     const response = await client.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            summary: { type: Type.STRING },
-            drivers: { type: Type.ARRAY, items: { type: Type.STRING } },
-            watchList: { type: Type.STRING },
-            sentimentTags: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  tag: { type: Type.STRING },
-                  sentiment: { type: Type.STRING, enum: ["BULLISH", "BEARISH", "NEUTRAL"] }
-                }
-              }
-            }
-          }
-        }
+        tools: [{ googleSearch: {} }],
+        // responseMimeType: "application/json", // REMOVED to fix 400 error
+        // responseSchema: ... // REMOVED to fix 400 error
       }
     });
 
-    if (response.text) {
-      return JSON.parse(response.text) as MarketContextData;
+    // Extract Text Content
+    let parsedData = fallbackData;
+    const responseText = response.text || "";
+
+    if (responseText) {
+      try {
+        // Clean markdown code blocks if present
+        const jsonString = responseText.replace(/```json|```/g, '').trim();
+        parsedData = JSON.parse(jsonString) as MarketContextData;
+      } catch (e) {
+        console.error("JSON Parse error", e);
+        console.log("Raw response text:", responseText);
+      }
     }
-    return fallbackData;
+
+    // Extract Grounding Metadata (Links)
+    const links: LinkData[] = [];
+    const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
+    
+    if (groundingChunks) {
+      groundingChunks.forEach((chunk: any) => {
+        if (chunk.web?.uri && chunk.web?.title) {
+          links.push({
+            title: chunk.web.title,
+            url: chunk.web.uri
+          });
+        }
+      });
+    }
+
+    return {
+      ...parsedData,
+      links: links.slice(0, 5) // Limit to top 5 links
+    };
 
   } catch (error) {
     console.error("Gemini API Error:", error);

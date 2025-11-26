@@ -20,19 +20,19 @@ const BacktestStats: React.FC = () => {
           </thead>
           <tbody className="divide-y divide-slate-700/50">
             <tr>
-              <td className="py-2 text-emerald-400">确认上涨 (评分 &ge; 8)</td>
+              <td className="py-2 text-emerald-400">确认上涨 (评分 &ge; 8.5)</td>
               <td className="py-2 text-slate-300">38</td>
               <td className="py-2 text-emerald-400 font-bold">+1.38%</td>
               <td className="py-2 text-right text-slate-400">-2.1%</td>
             </tr>
             <tr>
-              <td className="py-2 text-yellow-400">反弹未确认</td>
+              <td className="py-2 text-yellow-400">反弹未确认 (评分 4.5 - 8.4)</td>
               <td className="py-2 text-slate-300">61</td>
               <td className="py-2 text-emerald-400/70">+0.41%</td>
               <td className="py-2 text-right text-slate-400">-3.8%</td>
             </tr>
             <tr>
-              <td className="py-2 text-orange-400">假突破 / 回调</td>
+              <td className="py-2 text-orange-400">假突破 / 回调 (评分 &lt; 4.5)</td>
               <td className="py-2 text-slate-300">29</td>
               <td className="py-2 text-red-400">-1.12%</td>
               <td className="py-2 text-right text-slate-400">-5.6%</td>

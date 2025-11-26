@@ -14,6 +14,7 @@ import { AssetData, TrendAnalysis, MarketContextData } from './types';
 const App: React.FC = () => {
   const [qqq, setQqq] = useState<AssetData | null>(null);
   const [spy, setSpy] = useState<AssetData | null>(null);
+  const [dia, setDia] = useState<AssetData | null>(null);
   const [qqqTrend, setQqqTrend] = useState<TrendAnalysis | null>(null);
   const [spyTrend, setSpyTrend] = useState<TrendAnalysis | null>(null);
   const [marketContext, setMarketContext] = useState<MarketContextData | null>(null);
@@ -21,9 +22,10 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // 1. Fetch Market Data (Mock for demo, but structure allows real API replacement)
-    const { qqq: qqqData, spy: spyData } = getMockData();
+    const { qqq: qqqData, spy: spyData, dia: diaData } = getMockData();
     setQqq(qqqData);
     setSpy(spyData);
+    setDia(diaData);
 
     // 2. Analyze Trends
     const qAnalysis = analyzeTrend(qqqData);
@@ -43,13 +45,13 @@ const App: React.FC = () => {
     getContext();
   }, []);
 
-  if (!qqq || !spy || !qqqTrend || !spyTrend) {
+  if (!qqq || !spy || !dia || !qqqTrend || !spyTrend) {
     return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-slate-400">正在加载市场数据...</div>;
   }
 
   return (
     <div className="min-h-screen bg-slate-900 pb-20">
-      <Header qqq={qqq} spy={spy} />
+      <Header qqq={qqq} spy={spy} dia={dia} />
 
       <main className="max-w-5xl mx-auto px-4 pt-8 space-y-8">
         
