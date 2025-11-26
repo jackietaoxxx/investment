@@ -94,10 +94,10 @@ export const getStatusBg = (status: TrendStatus): string => {
 
 export const getStatusLabel = (status: TrendStatus): string => {
   switch (status) {
-    case TrendStatus.CONFIRMED_UPTREND: return 'CONFIRMED UPTREND';
-    case TrendStatus.REBOUND_UNCONFIRMED: return 'REBOUND (UNCONFIRMED)';
-    case TrendStatus.FAKEOUT_BEARISH: return 'FAKEOUT / BEARISH';
-    case TrendStatus.CONFIRMED_DOWNTREND: return 'CONFIRMED DOWNTREND';
-    default: return 'NEUTRAL';
+    case TrendStatus.CONFIRMED_UPTREND: return '确认上涨趋势';
+    case TrendStatus.REBOUND_UNCONFIRMED: return '反弹但未确认';
+    case TrendStatus.FAKEOUT_BEARISH: return '假突破 / 仍处回调';
+    case TrendStatus.CONFIRMED_DOWNTREND: return '明确下跌趋势';
+    default: return '中性震荡';
   }
 };

@@ -31,59 +31,59 @@ const TechTable: React.FC<TechTableProps> = ({ qqq, spy, qqqTrend, spyTrend }) =
   return (
     <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-lg">
       <div className="p-4 border-b border-slate-700 bg-slate-800/50">
-        <h3 className="text-slate-100 font-bold text-lg">Technical Confirmation Matrix</h3>
+        <h3 className="text-slate-100 font-bold text-lg">核心技术确认表 (Technical Matrix)</h3>
       </div>
       
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-slate-900/50 text-slate-400 text-xs uppercase tracking-wider">
-              <th className="p-4 font-medium">Indicator</th>
-              <th className="p-4 font-medium border-l border-slate-700">QQQ</th>
-              <th className="p-4 font-medium border-l border-slate-700">SPY</th>
-              <th className="p-4 font-medium hidden md:table-cell text-right">Criteria</th>
+            <tr className="bg-slate-900/50 text-slate-400 text-xs font-bold tracking-wider">
+              <th className="p-4">技术指标 (Indicator)</th>
+              <th className="p-4 border-l border-slate-700">QQQ</th>
+              <th className="p-4 border-l border-slate-700">SPY</th>
+              <th className="p-4 hidden md:table-cell text-right">判断标准</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-700">
             {/* SMA 50 */}
             <tr>
-              <td className="p-4 text-slate-300 font-medium">Price vs SMA 50d</td>
+              <td className="p-4 text-slate-300 font-medium">收盘价 vs 50日均线</td>
               <td className="p-4 border-l border-slate-700">
-                {renderCell('SMA50', qqqTrend.details.sma50, `${qqq.indicators.close} > ${qqq.indicators.sma50}`)}
+                {renderCell('SMA50', qqqTrend.details.sma50, `${qqq.indicators.close} ${qqqTrend.details.sma50 ? '>' : '<'} ${qqq.indicators.sma50}`)}
               </td>
               <td className="p-4 border-l border-slate-700">
-                {renderCell('SMA50', spyTrend.details.sma50, `${spy.indicators.close} > ${spy.indicators.sma50}`)}
+                {renderCell('SMA50', spyTrend.details.sma50, `${spy.indicators.close} ${spyTrend.details.sma50 ? '>' : '<'} ${spy.indicators.sma50}`)}
               </td>
-              <td className="p-4 hidden md:table-cell text-right text-xs text-slate-500">Bullish if Price &gt; SMA</td>
+              <td className="p-4 hidden md:table-cell text-right text-xs text-slate-500">价格 > 50日线 = 趋势向上</td>
             </tr>
 
             {/* SMA 20 */}
             <tr>
-              <td className="p-4 text-slate-300 font-medium">Price vs SMA 20d</td>
+              <td className="p-4 text-slate-300 font-medium">收盘价 vs 20日均线</td>
               <td className="p-4 border-l border-slate-700">
                 {renderCell('SMA20', qqqTrend.details.sma20, `${qqq.indicators.close} ${qqqTrend.details.sma20 ? '>' : '<'} ${qqq.indicators.sma20}`)}
               </td>
               <td className="p-4 border-l border-slate-700">
                 {renderCell('SMA20', spyTrend.details.sma20, `${spy.indicators.close} ${spyTrend.details.sma20 ? '>' : '<'} ${spy.indicators.sma20}`)}
               </td>
-              <td className="p-4 hidden md:table-cell text-right text-xs text-slate-500">Short-term momentum</td>
+              <td className="p-4 hidden md:table-cell text-right text-xs text-slate-500">短期动能确认</td>
             </tr>
 
             {/* Volume */}
             <tr>
-              <td className="p-4 text-slate-300 font-medium">Volume Surge</td>
+              <td className="p-4 text-slate-300 font-medium">今日成交量 (vs 20日均量)</td>
               <td className="p-4 border-l border-slate-700">
-                {renderCell('Volume', qqqTrend.details.volume, `${formatNumber(qqq.indicators.volume)} (${(qqq.indicators.volume / qqq.indicators.avgVolume20).toFixed(2)}x)`)}
+                {renderCell('Volume', qqqTrend.details.volume, `${formatNumber(qqq.indicators.volume)} (${(qqq.indicators.volume / qqq.indicators.avgVolume20).toFixed(2)}倍)`)}
               </td>
               <td className="p-4 border-l border-slate-700">
-                {renderCell('Volume', spyTrend.details.volume, `${formatNumber(spy.indicators.volume)} (${(spy.indicators.volume / spy.indicators.avgVolume20).toFixed(2)}x)`)}
+                {renderCell('Volume', spyTrend.details.volume, `${formatNumber(spy.indicators.volume)} (${(spy.indicators.volume / spy.indicators.avgVolume20).toFixed(2)}倍)`)}
               </td>
-              <td className="p-4 hidden md:table-cell text-right text-xs text-slate-500">&gt; 1.1x Avg (Strong Conviction)</td>
+              <td className="p-4 hidden md:table-cell text-right text-xs text-slate-500">&gt; 1.1倍均量 (放量确认)</td>
             </tr>
 
             {/* RSI */}
             <tr>
-              <td className="p-4 text-slate-300 font-medium">RSI (14)</td>
+              <td className="p-4 text-slate-300 font-medium">RSI (14) 强弱指标</td>
               <td className="p-4 border-l border-slate-700">
                  <span className={
                     qqqTrend.details.rsi === 'BULL' ? 'text-emerald-400 font-bold' : 
@@ -100,35 +100,35 @@ const TechTable: React.FC<TechTableProps> = ({ qqq, spy, qqqTrend, spyTrend }) =
                     {spy.indicators.rsi}
                  </span>
               </td>
-              <td className="p-4 hidden md:table-cell text-right text-xs text-slate-500">&gt;53 Bull, &lt;45 Bear</td>
+              <td className="p-4 hidden md:table-cell text-right text-xs text-slate-500">&gt;53 强势, &lt;45 弱势</td>
             </tr>
 
              {/* MACD */}
              <tr>
-              <td className="p-4 text-slate-300 font-medium">MACD Crossover</td>
+              <td className="p-4 text-slate-300 font-medium">MACD 金叉/死叉</td>
               <td className="p-4 border-l border-slate-700">
-                {renderCell('MACD', qqqTrend.details.macd, qqqTrend.details.macd ? 'Golden Cross' : 'Bear Cross')}
+                {renderCell('MACD', qqqTrend.details.macd, qqqTrend.details.macd ? '金叉 (Bullish)' : '死叉 (Bearish)')}
               </td>
               <td className="p-4 border-l border-slate-700">
-                {renderCell('MACD', spyTrend.details.macd, spyTrend.details.macd ? 'Golden Cross' : 'Bear Cross')}
+                {renderCell('MACD', spyTrend.details.macd, spyTrend.details.macd ? '金叉 (Bullish)' : '死叉 (Bearish)')}
               </td>
-              <td className="p-4 hidden md:table-cell text-right text-xs text-slate-500">Line &gt; Signal</td>
+              <td className="p-4 hidden md:table-cell text-right text-xs text-slate-500">快线 > 慢线</td>
             </tr>
 
              {/* Bollinger */}
              <tr>
-              <td className="p-4 text-slate-300 font-medium">Bollinger Position</td>
+              <td className="p-4 text-slate-300 font-medium">布林带位置</td>
               <td className="p-4 border-l border-slate-700">
                 <span className={qqqTrend.details.bollinger === 'ABOVE' ? 'text-emerald-400' : 'text-yellow-400'}>
-                    {qqqTrend.details.bollinger === 'ABOVE' ? 'Above Mid' : 'Below Mid'}
+                    {qqqTrend.details.bollinger === 'ABOVE' ? '中轨上方' : '中轨下方'}
                 </span>
               </td>
               <td className="p-4 border-l border-slate-700">
                 <span className={spyTrend.details.bollinger === 'ABOVE' ? 'text-emerald-400' : 'text-yellow-400'}>
-                    {spyTrend.details.bollinger === 'ABOVE' ? 'Above Mid' : 'Below Mid'}
+                    {spyTrend.details.bollinger === 'ABOVE' ? '中轨上方' : '中轨下方'}
                 </span>
               </td>
-              <td className="p-4 hidden md:table-cell text-right text-xs text-slate-500">Above Middle Band</td>
+              <td className="p-4 hidden md:table-cell text-right text-xs text-slate-500">位于中轨上方为佳</td>
             </tr>
 
           </tbody>

@@ -21,12 +21,12 @@ export const fetchMarketContext = async (
   
   // Fallback data if no API key
   const fallbackData: MarketContextData = {
-    summary: "Markets are showing resilience with retail sales exceeding expectations. Volatility is contracting as VIX drops below 16.",
-    drivers: ["Strong Retail Sales data", "VIX Pullback", "Tech sector rotation"],
-    watchList: "PPI Data tomorrow at 8:30 AM ET + Upcoming Market Holiday",
+    summary: "零售销售数据超预期，VIX 回落至 16 以下，市场表现出较强韧性。科技股轮动支撑了大盘。",
+    drivers: ["零售销售数据强劲", "VIX 回落", "科技板块轮动"],
+    watchList: "明日关注 PPI 数据 (8:30 ET) 及感恩节假期休市安排",
     sentimentTags: [
-      { tag: "#QQQGoldenCross", sentiment: "BULLISH" },
-      { tag: "#LowVolumeConsolidation", sentiment: "NEUTRAL" }
+      { tag: "#QQQ金叉", sentiment: "BULLISH" },
+      { tag: "#缩量盘整", sentiment: "NEUTRAL" }
     ]
   };
 
@@ -34,6 +34,7 @@ export const fetchMarketContext = async (
 
   const prompt = `
     Analyze the following stock market data for QQQ and SPY to provide a daily market context summary for traders.
+    Output must be in Chinese (Simplified).
     
     Data:
     QQQ: Close ${qqq.indicators.close}, Change ${qqq.indicators.changePercent}%, Trend: ${getStatusLabel(qqqTrend.status)}, Score: ${qqqTrend.score}/10.
@@ -42,10 +43,10 @@ export const fetchMarketContext = async (
     Current Date: ${new Date().toLocaleDateString()}.
     
     Generate a JSON response with:
-    1. A short summary (max 2 sentences) of the market background.
-    2. A list of 3 key market drivers (e.g. macro events, sector moves).
-    3. What to watch tomorrow (1 short sentence).
-    4. 2-3 trending sentiment hashtags with sentiment (BULLISH, BEARISH, NEUTRAL).
+    1. summary: A short summary (max 2 sentences) of the market background in Chinese.
+    2. drivers: A list of 3 key market drivers (e.g. macro events, sector moves) in Chinese.
+    3. watchList: What to watch tomorrow (1 short sentence) in Chinese.
+    4. sentimentTags: 2-3 trending sentiment hashtags (in Chinese or English common terms) with sentiment (BULLISH, BEARISH, NEUTRAL).
   `;
 
   try {

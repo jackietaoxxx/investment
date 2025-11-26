@@ -44,7 +44,7 @@ const App: React.FC = () => {
   }, []);
 
   if (!qqq || !spy || !qqqTrend || !spyTrend) {
-    return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-slate-400">Loading Market Data...</div>;
+    return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-slate-400">正在加载市场数据...</div>;
   }
 
   return (
@@ -92,8 +92,8 @@ const App: React.FC = () => {
           <div className="lg:col-span-1">
              <BacktestStats />
              <div className="mt-4 p-4 rounded-lg bg-slate-800/50 border border-slate-800 text-xs text-slate-500 text-center">
-               <p>Data delayed by 15 minutes.</p>
-               <p className="mt-1">Not financial advice.</p>
+               <p>数据可能延迟 15 分钟。</p>
+               <p className="mt-1">本页面仅供参考，不构成投资建议。</p>
              </div>
           </div>
         </div>

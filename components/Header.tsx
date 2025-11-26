@@ -13,9 +13,14 @@ const Header: React.FC<HeaderProps> = ({ qqq, spy }) => {
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      // Format: Wed Nov 26
-      const options: Intl.DateTimeFormatOptions = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
-      setCurrentDate(now.toLocaleDateString('en-US', options));
+      // Format to Chinese Date: 2025年11月26日 (周三)
+      const dateStr = now.toLocaleDateString('zh-CN', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric', 
+        weekday: 'short' 
+      });
+      setCurrentDate(`美东时间 ${dateStr}`);
 
       // Calculate time to 4:00 PM ET (16:00)
       const etNow = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
@@ -23,12 +28,12 @@ const Header: React.FC<HeaderProps> = ({ qqq, spy }) => {
       marketClose.setHours(16, 0, 0, 0);
 
       if (etNow > marketClose) {
-        setTimeLeft('Market Closed');
+        setTimeLeft('已收盘');
       } else {
         const diff = marketClose.getTime() - etNow.getTime();
         const hrs = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const mins = Math.floor((diff / (1000 * 60)) % 60);
-        setTimeLeft(`Closes in ${hrs}h ${mins}m`);
+        setTimeLeft(`距收盘还剩 ${hrs}小时 ${mins}分`);
       }
     };
 
@@ -43,7 +48,7 @@ const Header: React.FC<HeaderProps> = ({ qqq, spy }) => {
         
         {/* Date & Timer */}
         <div className="text-center md:text-left">
-          <div className="text-slate-400 text-sm font-medium uppercase tracking-wide">
+          <div className="text-slate-400 text-sm font-medium uppercase tracking-wide mb-1">
             {currentDate}
           </div>
           <div className="text-white font-bold text-lg flex items-center gap-2 justify-center md:justify-start">
@@ -56,16 +61,16 @@ const Header: React.FC<HeaderProps> = ({ qqq, spy }) => {
         </div>
 
         {/* Ticker Tape Look */}
-        <div className="flex gap-6">
+        <div className="flex gap-8">
           <div className="flex flex-col items-end">
-            <span className="text-slate-400 text-xs font-bold tracking-widest">QQQ</span>
+            <span className="text-slate-400 text-xs font-bold tracking-widest">QQQ 今日涨跌</span>
             <span className={`text-xl font-mono font-bold ${qqq.indicators.changePercent >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
               {qqq.indicators.changePercent >= 0 ? '+' : ''}{qqq.indicators.changePercent}%
             </span>
           </div>
           <div className="w-px bg-slate-700 h-10"></div>
           <div className="flex flex-col items-end">
-            <span className="text-slate-400 text-xs font-bold tracking-widest">SPY</span>
+            <span className="text-slate-400 text-xs font-bold tracking-widest">SPY 今日涨跌</span>
             <span className={`text-xl font-mono font-bold ${spy.indicators.changePercent >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
               {spy.indicators.changePercent >= 0 ? '+' : ''}{spy.indicators.changePercent}%
             </span>
