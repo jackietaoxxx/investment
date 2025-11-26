@@ -4,18 +4,22 @@ import { AssetData } from '../types';
 interface HeaderProps {
   qqq: AssetData;
   spy: AssetData;
-  dia?: AssetData; // Optional to prevent breaking if not loaded immediately
+  dia?: AssetData;
 }
 
 const Header: React.FC<HeaderProps> = ({ qqq, spy, dia }) => {
-  const [timeLeft, setTimeLeft] = useState('');
+  const [timeDisplay, setTimeDisplay] = useState('');
   const [currentDate, setCurrentDate] = useState('');
+  const [isMarketOpen, setIsMarketOpen] = useState(false);
 
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      // Format to Chinese Date: 2025年11月26日 (周三)
+      
+      // 1. Format Date (Chinese)
+      // Use "America/New_York" to ensure the date is correct for the market
       const dateStr = now.toLocaleDateString('zh-CN', { 
+        timeZone: "America/New_York",
         year: 'numeric', 
         month: 'long', 
         day: 'numeric', 
@@ -23,23 +27,71 @@ const Header: React.FC<HeaderProps> = ({ qqq, spy, dia }) => {
       });
       setCurrentDate(`美东时间 ${dateStr}`);
 
-      // Calculate time to 4:00 PM ET (16:00)
-      const etNow = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-      const marketClose = new Date(etNow);
+      // 2. Get Specific ET Time (HH:MM:SS)
+      const etTimeStr = now.toLocaleTimeString('en-US', {
+        timeZone: "America/New_York",
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+
+      // 3. Market Status Logic
+      // Create a Date object that represents the current time in ET
+      // Note: We create a date string in ET, then parse it. This date object will have local timezone offset 
+      // but the component values (hour, min) match ET.
+      const etDate = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+      
+      const marketOpen = new Date(etDate);
+      marketOpen.setHours(9, 30, 0, 0);
+      
+      const marketClose = new Date(etDate);
       marketClose.setHours(16, 0, 0, 0);
 
-      if (etNow > marketClose) {
-        setTimeLeft('已收盘');
-      } else {
-        const diff = marketClose.getTime() - etNow.getTime();
-        const hrs = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      let statusText = '';
+      let isOpen = false;
+
+      // Check strictly against hours
+      if (etDate < marketOpen) {
+        // Pre-market / Morning
+        const diff = marketOpen.getTime() - etDate.getTime();
+        const hrs = Math.floor(diff / (1000 * 60 * 60));
         const mins = Math.floor((diff / (1000 * 60)) % 60);
-        setTimeLeft(`距收盘还剩 ${hrs}小时 ${mins}分`);
+        statusText = `距开盘 ${hrs}小时 ${mins}分`;
+        isOpen = false;
+      } else if (etDate >= marketOpen && etDate < marketClose) {
+        // Market Open
+        const diff = marketClose.getTime() - etDate.getTime();
+        const hrs = Math.floor(diff / (1000 * 60 * 60));
+        const mins = Math.floor((diff / (1000 * 60)) % 60);
+        statusText = `距收盘 ${hrs}小时 ${mins}分`;
+        isOpen = true;
+      } else {
+        // After Close
+        // Calculate time to next open (approximate for next day 9:30)
+        const tomorrowOpen = new Date(marketOpen);
+        tomorrowOpen.setDate(tomorrowOpen.getDate() + 1);
+        
+        // Simple weekend handling (Fri -> Mon)
+        // If current ET day is Friday (5), next open is Monday (add 3 days total from today, or logic below)
+        const day = etDate.getDay();
+        if (day === 5) tomorrowOpen.setDate(tomorrowOpen.getDate() + 2); // Fri -> Mon
+        if (day === 6) tomorrowOpen.setDate(tomorrowOpen.getDate() + 1); // Sat -> Mon
+
+        const diff = tomorrowOpen.getTime() - etDate.getTime();
+        const hrs = Math.floor(diff / (1000 * 60 * 60));
+        const mins = Math.floor((diff / (1000 * 60)) % 60);
+
+        statusText = `已收盘 (距开盘 ${hrs}小时 ${mins}分)`;
+        isOpen = false;
       }
+
+      setTimeDisplay(`${etTimeStr} | ${statusText}`);
+      setIsMarketOpen(isOpen);
     };
 
     updateTime();
-    const timer = setInterval(updateTime, 60000);
+    const timer = setInterval(updateTime, 1000); // Update every second
     return () => clearInterval(timer);
   }, []);
 
@@ -72,12 +124,12 @@ const Header: React.FC<HeaderProps> = ({ qqq, spy, dia }) => {
           <div className="text-slate-400 text-sm font-medium uppercase tracking-wide mb-1">
             {currentDate}
           </div>
-          <div className="text-white font-bold text-lg flex items-center gap-2 justify-center md:justify-start">
+          <div className="text-white font-bold text-lg flex items-center gap-2 justify-center md:justify-start font-mono">
             <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isMarketOpen ? 'bg-emerald-400' : 'bg-orange-400'}`}></span>
+              <span className={`relative inline-flex rounded-full h-3 w-3 ${isMarketOpen ? 'bg-emerald-500' : 'bg-orange-500'}`}></span>
             </span>
-            {timeLeft}
+            {timeDisplay}
           </div>
         </div>
 
