@@ -7,9 +7,10 @@ interface TechTableProps {
   spy: AssetData;
   qqqTrend: TrendAnalysis;
   spyTrend: TrendAnalysis;
+  fearGreedIndex?: number; // From AI Market Context
 }
 
-const TechTable: React.FC<TechTableProps> = ({ qqq, spy, qqqTrend, spyTrend }) => {
+const TechTable: React.FC<TechTableProps> = ({ qqq, spy, qqqTrend, spyTrend, fearGreedIndex }) => {
   
   // Helper for conditional styling of cells
   const renderCell = (label: string, isOk: boolean, valueDisplay: React.ReactNode, isNegativeBad = true) => {
@@ -27,6 +28,17 @@ const TechTable: React.FC<TechTableProps> = ({ qqq, spy, qqqTrend, spyTrend }) =
       </div>
     );
   };
+
+  const getFearGreedLabel = (value: number | undefined) => {
+    if (value === undefined) return { label: '加载中...', color: 'text-slate-500 animate-pulse' };
+    if (value >= 75) return { label: '极度贪婪 (Extreme Greed)', color: 'text-emerald-400 font-bold' };
+    if (value >= 56) return { label: '贪婪 (Greed)', color: 'text-emerald-400' };
+    if (value >= 45) return { label: '中性 (Neutral)', color: 'text-yellow-400' };
+    if (value >= 25) return { label: '恐慌 (Fear)', color: 'text-orange-400' };
+    return { label: '极度恐慌 (Extreme Fear)', color: 'text-red-500 font-bold' };
+  };
+
+  const fgDisplay = getFearGreedLabel(fearGreedIndex);
 
   return (
     <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-lg">
@@ -129,6 +141,19 @@ const TechTable: React.FC<TechTableProps> = ({ qqq, spy, qqqTrend, spyTrend }) =
                 </span>
               </td>
               <td className="p-4 hidden md:table-cell text-right text-xs text-slate-500">位于中轨上方为佳</td>
+            </tr>
+            
+            {/* Fear & Greed Index */}
+            <tr className="bg-slate-900/20">
+              <td className="p-4 text-slate-300 font-medium border-t border-slate-700">CNN Fear & Greed Index</td>
+              {/* Combine cells since it's a market-wide metric */}
+              <td className="p-4 border-l border-t border-slate-700" colSpan={2}>
+                 <div className="flex flex-col items-center md:items-start">
+                   <span className="text-white font-mono font-bold text-lg">{fearGreedIndex ?? '---'}</span>
+                   <span className={`text-xs ${fgDisplay.color}`}>{fgDisplay.label}</span>
+                 </div>
+              </td>
+              <td className="p-4 hidden md:table-cell text-right text-xs text-slate-500 border-t border-slate-700">市场情绪参考 (0-100)</td>
             </tr>
 
           </tbody>

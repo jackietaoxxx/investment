@@ -83,6 +83,7 @@ const App: React.FC = () => {
           spy={spy} 
           qqqTrend={qqqTrend} 
           spyTrend={spyTrend} 
+          fearGreedIndex={marketContext?.fearAndGreedIndex}
         />
 
         {/* Market Context & Levels */}

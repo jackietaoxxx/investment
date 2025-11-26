@@ -23,6 +23,7 @@ export interface TechnicalIndicators {
     middle: number;
     lower: number;
   };
+  // fearGreed removed here, moved to MarketContextData for live fetching
 }
 
 export interface PriceLevel {
@@ -69,6 +70,7 @@ export interface MarketContextData {
     btc: CryptoPrice;
     eth: CryptoPrice;
   };
+  fearAndGreedIndex?: number; // Live fetched value
   drivers: string[];
   watchList: string;
   calendar: string[]; // Upcoming events (FOMC, Earnings)

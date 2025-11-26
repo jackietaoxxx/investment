@@ -43,6 +43,26 @@ const Header: React.FC<HeaderProps> = ({ qqq, spy, dia }) => {
     return () => clearInterval(timer);
   }, []);
 
+  const renderTickerItem = (label: string, price: number, change: number) => {
+    const isUp = change >= 0;
+    const colorClass = isUp ? 'text-emerald-400' : 'text-red-400';
+    const sign = isUp ? '+' : '';
+
+    return (
+      <div className="flex flex-col items-end min-w-[120px]">
+        <span className="text-slate-400 text-xs font-bold tracking-widest mb-0.5">{label}</span>
+        <div className="flex items-baseline gap-2">
+           <span className="text-xl font-mono font-bold text-white tracking-tight">
+             {price.toFixed(2)}
+           </span>
+           <span className={`text-sm font-mono font-bold ${colorClass}`}>
+             {sign}{change}%
+           </span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="bg-slate-900 border-b border-slate-700 p-4 sticky top-0 z-50 shadow-md">
       <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
@@ -63,29 +83,16 @@ const Header: React.FC<HeaderProps> = ({ qqq, spy, dia }) => {
 
         {/* Ticker Tape Look */}
         <div className="flex gap-6 md:gap-8 overflow-x-auto w-full md:w-auto justify-center md:justify-end">
-          <div className="flex flex-col items-end min-w-[80px]">
-            <span className="text-slate-400 text-xs font-bold tracking-widest">QQQ</span>
-            <span className={`text-xl font-mono font-bold ${qqq.indicators.changePercent >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-              {qqq.indicators.changePercent >= 0 ? '+' : ''}{qqq.indicators.changePercent}%
-            </span>
-          </div>
+          {renderTickerItem('QQQ', qqq.indicators.close, qqq.indicators.changePercent)}
+          
           <div className="w-px bg-slate-700 h-10"></div>
-          <div className="flex flex-col items-end min-w-[80px]">
-            <span className="text-slate-400 text-xs font-bold tracking-widest">SPY</span>
-            <span className={`text-xl font-mono font-bold ${spy.indicators.changePercent >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-              {spy.indicators.changePercent >= 0 ? '+' : ''}{spy.indicators.changePercent}%
-            </span>
-          </div>
+          
+          {renderTickerItem('SPY', spy.indicators.close, spy.indicators.changePercent)}
           
           {dia && (
             <>
               <div className="w-px bg-slate-700 h-10"></div>
-              <div className="flex flex-col items-end min-w-[80px]">
-                <span className="text-slate-400 text-xs font-bold tracking-widest">DIA (道指)</span>
-                <span className={`text-xl font-mono font-bold ${dia.indicators.changePercent >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {dia.indicators.changePercent >= 0 ? '+' : ''}{dia.indicators.changePercent}%
-                </span>
-              </div>
+              {renderTickerItem('DIA', dia.indicators.close, dia.indicators.changePercent)}
             </>
           )}
         </div>

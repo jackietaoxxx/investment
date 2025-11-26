@@ -27,6 +27,7 @@ export const fetchMarketContext = async (
       btc: { price: "---", change: "---" },
       eth: { price: "---", change: "---" }
     },
+    fearAndGreedIndex: undefined,
     drivers: ["数据加载中...", "数据加载中...", "数据加载中..."],
     watchList: "等待 API 响应...",
     calendar: ["即将更新...", "即将更新...", "即将更新..."],
@@ -43,7 +44,13 @@ export const fetchMarketContext = async (
     
     TASK 1: Use Google Search to find the EXACT REAL-TIME PRICE of Bitcoin (BTC) and Ethereum (ETH) right now in USD.
     
-    TASK 2: Identify the TOP 3 specific market drivers for TODAY. 
+    TASK 2: Use Google Search to find the current "CNN Fear and Greed Index" score. 
+    - Search specifically for "CNN Fear and Greed Index current score today". 
+    - The value MUST be an integer between 0 and 100. 
+    - Do NOT return a decimal (e.g., if 13.89, round to 14).
+    - Source context: https://edition.cnn.com/markets/fear-and-greed
+    
+    TASK 3: Identify the TOP 3 specific market drivers for TODAY. 
     CRITICAL: Be extremely specific and detailed. 
     - Do NOT say "Tech stocks rose". 
     - DO say "Google surged 5% on news of Gemini 3 TPU integration" or "Meta and Apple partnership rumors lifted sentiment".
@@ -69,6 +76,7 @@ export const fetchMarketContext = async (
         "btc": { "price": "$96,250", "change": "+3.5%" },
         "eth": { "price": "$3,450", "change": "-1.2%" }
       },
+      "fearAndGreedIndex": 16,
       "watchList": "What to watch tomorrow (Important Data, Speeches) in Chinese.",
       "calendar": ["Date: Event 1", "Date: Event 2"],
       "sentimentTags": [
@@ -87,8 +95,6 @@ export const fetchMarketContext = async (
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
-        // responseMimeType: "application/json", // REMOVED to fix 400 error
-        // responseSchema: ... // REMOVED to fix 400 error
       }
     });
 
